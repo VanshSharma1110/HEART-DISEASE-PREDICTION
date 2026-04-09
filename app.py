@@ -16,7 +16,7 @@ warnings.filterwarnings("ignore")
 
 st.set_page_config(page_title="Heart Disease Prediction System", page_icon="🫀",
                    layout="wide", initial_sidebar_state="expanded")
-                   
+
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -155,11 +155,30 @@ with tab1:
 
     st.markdown("")
     if st.button("🫀 Predict Heart Disease Risk"):
+        def parse_val(s):
+            # Extracts leading integer from strings like "No (0)", "Yes (1)", "0 – Normal", "1 – Flat"
+            import re
+            # Try "No (0)" / "Yes (1)" pattern first
+            m = re.search(r'\((\d+)\)', s)
+            if m: return int(m.group(1))
+            # Try leading digit pattern like "0 – Normal"
+            m = re.match(r'^\s*(\d+)', s)
+            if m: return int(m.group(1))
+            return 0
+
         input_vals = [
-            age_in, 1 if "Male" in sex_in else 0, int(cp_in[0]),
-            bp_in, chol_in, int(fbs_in[0]), int(ekg_in[0]), maxhr_in,
-            int(exang_in[0]), stdep_in, int(slope_in[0]),
-            vessels_in, int(thal_in.split("–")[0].strip()),
+            age_in,
+            1 if "Male" in sex_in else 0,
+            parse_val(cp_in),
+            bp_in, chol_in,
+            parse_val(fbs_in),
+            parse_val(ekg_in),
+            maxhr_in,
+            parse_val(exang_in),
+            stdep_in,
+            parse_val(slope_in),
+            vessels_in,
+            int(thal_in.split("–")[0].strip()),
         ]
         input_arr    = np.array(input_vals).reshape(1, -1)
         input_scaled = scaler.transform(input_arr)
